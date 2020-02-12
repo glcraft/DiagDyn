@@ -7,7 +7,7 @@
 
 void display_help()
 {
-    std::cout << "moduleLoader <module_path>" << std::endl;
+    std::cout << "DiagDyn [/show_deps] <module_path>" << std::endl;
 }
 int main(int argv, char** argc)
 {

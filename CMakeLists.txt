@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(PluginLoader)
+project(DiagDyn)
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(PlatformTarget x64)
@@ -12,10 +12,10 @@ file(GLOB SRC
     "*.cpp"
     "*.h"
 )
-add_executable(PluginLoader ${SRC})
+add_executable(DiagDyn ${SRC})
 
-set_target_properties(PluginLoader PROPERTIES 
-    OUTPUT_NAME "PluginLoader_${PlatformTarget}"
+set_target_properties(DiagDyn PROPERTIES 
+    OUTPUT_NAME "DiagDyn_${PlatformTarget}"
     CXX_STANDARD 17
 )
 set(CompilerFlags
