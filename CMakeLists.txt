@@ -16,7 +16,7 @@ add_executable(DiagDyn ${SRC})
 
 set_target_properties(DiagDyn PROPERTIES 
     OUTPUT_NAME "DiagDyn_${PlatformTarget}"
-    CXX_STANDARD 17
+    CXX_STANDARD 20
 )
 set(CompilerFlags
     CMAKE_CXX_FLAGS
