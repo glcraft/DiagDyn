@@ -7,11 +7,12 @@
 // Headers
 #include "Windows.h"
 
+#include <algorithm>
 #include <iostream>
-#include <sstream>
 #include <fstream>
 #include <string>
 #include <vector>
+#include <array>
 
 #include <filesystem>
 
@@ -21,9 +22,9 @@ namespace fs = std::filesystem;
 
 //******************************************************************************
 //FUNCTION DECLARATIONS
-bool verify_image_file(std::string);
-std::vector<char> read_all_bytes(const char* file);
-std::vector<std::string> parse_pe_import_table_names(std::string file);
+bool verify_image_file(const fs::path&);
+std::vector<char> read_all_bytes(const fs::path& file);
+std::vector<fs::path> parse_pe_import_table_names(const fs::path& file);
 
 //******************************************************************************
 // Constants
@@ -71,10 +72,10 @@ class invalid_pe_signature      : public std::exception { const char* what() con
 
 //******************************************************************************
 // PE Parser
-std::vector<std::string> parse_pe_import_table_names(std::string file)
+std::vector<fs::path> parse_pe_import_table_names(const fs::path& file)
 {
-    std::vector<char> bytes = read_all_bytes(file.c_str());
-    std::vector<std::string> dependencies;
+    std::vector<char> bytes = read_all_bytes(file);
+    std::vector<fs::path> dependencies;
 
     DWORD * signature_offset_location = (DWORD*)&bytes[IMG_SIGNATURE_OFFSET];
     char * signature = (char*)&bytes[*signature_offset_location];
@@ -171,7 +172,7 @@ std::vector<std::string> parse_pe_import_table_names(std::string file)
 
 //******************************************************************************
 // File Reader
-std::vector<char> read_all_bytes(const char* filename)
+std::vector<char> read_all_bytes(const fs::path& filename)
 {
     std::ifstream ifs(filename, std::ios::binary | std::ios::ate);
     std::ifstream::pos_type pos = ifs.tellg();
@@ -185,28 +186,14 @@ std::vector<char> read_all_bytes(const char* filename)
 
 //******************************************************************************
 // IMAGE-TYPE FILE VERIFIER
-bool verify_image_file(std::string file_to_verify)
+bool verify_image_file(const fs::path& file_to_verify)
 {
-    if (fs::exists(file_to_verify))
-    {
-        size_t extension_query = file_to_verify.find(".dll", 0);
-        if (extension_query == std::string::npos)
-        {
-            extension_query = file_to_verify.find(".DLL", 0);
-            if (extension_query == std::string::npos)
-            {
-                extension_query = file_to_verify.find(".exe", 0);
-                if (extension_query == std::string::npos)
-                {
-                    extension_query = file_to_verify.find(".EXE", 0);
-                }
-                else { return true; }
-
-                if (extension_query != std::string::npos) { return true; }
-            }
-            else { return true; }
-        }
-        else { return true; }
-    }
-    return false;
+    using namespace std::string_view_literals;
+    constexpr auto binary_exts = std::array{".dll"sv, ".exe"sv, ".com"sv};
+    if (!fs::exists(file_to_verify))
+        return false;
+    auto ext = file_to_verify.extension().string();
+    for(auto& c : ext)
+        c = std::tolower(c);
+    return std::find(binary_exts.begin(), binary_exts.end(), ext) != binary_exts.end();
 }

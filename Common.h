@@ -1,13 +1,11 @@
 #pragma once
-#include <string>
-struct Data
+#include <filesystem>
+
+
+
+struct InterfaceData
 {
-    // arguments
-    int maxdepth=2;
-    bool showDeps=0;
-    
-    // variables
-    int depth=0;
-    std::string indent;
-    std::string current_path;
+    uint32_t max_depth=1;
+    bool full_path = false;
+    bool verbose = true;
 };
